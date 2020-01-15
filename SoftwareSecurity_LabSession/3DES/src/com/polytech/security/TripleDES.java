@@ -81,36 +81,38 @@ public class TripleDES{
 							String KeyGeneratorInstanceName, 
 							String CipherInstanceName){
 		try{
-		
-			// GENERATE 3 DES KEYS
-		
-			// CREATE A DES CIPHER OBJECT 
-				// WITH CipherInstanceName
-				// FOR ENCRYPTION 
-				// WITH THE FIRST GENERATED DES KEY
 			
-			// CREATE A DES CIPHER OBJECT 
-				// WITH CipherInstanceName
-				// FOR DECRYPTION
-				// WITH THE SECOND GENERATED DES KEY
-				
-			// CREATE A DES CIPHER OBJECT 
-				// WITH CipherInstanceName 
-				// FOR ENCRYPTION
-				// WITH THE THIRD GENERATED DES KEY
-				
-			// GET THE MESSAGE TO BE ENCRYPTED FROM IN 
+			KeyGenerator keyGen = KeyGenerator.getInstance(KeyGeneratorInstanceName);
+			keyGen.init(new SecureRandom());
+			SecretKey secretLevel1 = keyGen.generateKey();
+			SecretKey secretLevel2 = keyGen.generateKey();
+			SecretKey secretLevel3 = keyGen.generateKey();
 			
-			// CIPHERING     
-				// CIPHER WITH THE FIRST KEY
-				// DECIPHER WITH THE SECOND KEY
-				// CIPHER WITH THE THIRD KEY
-				// write encrypted file
-
-			// WRITE THE ENCRYPTED DATA IN OUT
+			Cipher cipherLevel1 = Cipher.getInstance(CipherInstanceName);
+			cipherLevel1.init(Cipher.ENCRYPT_MODE, secretLevel1);
 			
-			// return the DES keys list generated		
-			return null;
+			Cipher cipherLevel2 = Cipher.getInstance(CipherInstanceName);
+			cipherLevel2.init(Cipher.DECRYPT_MODE, secretLevel2);
+			
+			Cipher cipherLevel3 = Cipher.getInstance(CipherInstanceName);
+			cipherLevel3.init(Cipher.ENCRYPT_MODE, secretLevel3);
+			
+			StringBuilder stringBuilder = new StringBuilder();
+			
+			byte[] plainText  = in.readAllBytes();
+			byte[] firstPass = cipherLevel1.doFinal(plainText);
+			byte[] secondPass = cipherLevel2.doFinal(firstPass);
+			byte[] thirdPass = cipherLevel3.doFinal(secondPass);
+			
+			out.write(thirdPass);
+			out.close();
+			
+			Vector<SecretKey> vector = new Vector();
+			vector.add(secretLevel1);
+			vector.add(secretLevel2);
+			vector.add(secretLevel3);
+			
+			return vector;
 			
 		}catch(Exception e){
 			e.printStackTrace();
@@ -127,30 +129,27 @@ public class TripleDES{
 						FileOutputStream out, 
 						String CipherInstanceName){
 		try{
-
-			// CREATE A DES CIPHER OBJECT 
-				// WITH CipherInstanceName
-				// FOR DECRYPTION 
-				// WITH THE THIRD GENERATED DES KEY
 			
-			// CREATE A DES CIPHER OBJECT 
-				// WITH CipherInstanceName
-				// FOR ENCRYPTION
-				// WITH THE SECOND GENERATED DES KEY
-				
-			// CREATE A DES CIPHER OBJECT FOR ENCRYPTION
-				// WITH CipherInstanceName
-				// FOR DECRYPTION
-				// WITH THE FIRST GENERATED DES KEY
+			SecretKey secretLevel1 = (SecretKey) Parameters.get(0);
+			SecretKey secretLevel2 = (SecretKey) Parameters.get(1);
+			SecretKey secretLevel3 = (SecretKey) Parameters.get(2);
 			
-			// GET THE ENCRYPTED DATA FROM IN
+			Cipher cipherLevel1 = Cipher.getInstance(CipherInstanceName);
+			cipherLevel1.init(Cipher.DECRYPT_MODE, secretLevel3);
 			
-			// DECIPHERING     
-				// DECIPHER WITH THE THIRD KEY
-				// 	CIPHER WITH THE SECOND KEY
-				// 	DECIPHER WITH THE FIRST KEY
-
-			// WRITE THE DECRYPTED DATA IN OUT
+			Cipher cipherLevel2 = Cipher.getInstance(CipherInstanceName);
+			cipherLevel2.init(Cipher.ENCRYPT_MODE, secretLevel2);
+			
+			Cipher cipherLevel3 = Cipher.getInstance(CipherInstanceName);
+			cipherLevel3.init(Cipher.DECRYPT_MODE, secretLevel1);
+			
+			byte[] plainText  = in.readAllBytes();
+			byte[] firstPass = cipherLevel1.doFinal(plainText);
+			byte[] secondPass = cipherLevel2.doFinal(firstPass);
+			byte[] thirdPass = cipherLevel3.doFinal(secondPass);
+			
+			out.write(thirdPass);
+			out.close();
 			
 		}catch(Exception e){
 			e.printStackTrace();
@@ -166,6 +165,7 @@ public class TripleDES{
 							String KeyGeneratorInstanceName, 
 							String CipherInstanceName){
 		try{
+			
 		
 			// GENERATE 3 DES KEYS
 			// GENERATE THE IV

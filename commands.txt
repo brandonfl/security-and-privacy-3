@@ -1,0 +1,3 @@
+Eclipse launch conf : 
+-ECB /Users/brandonfontany--legall/Desktop/Git/security-and-privacy-3/SoftwareSecurity_LabSession/3DES/ecb/clearTextFileECB /Users/brandonfontany--legall/Desktop/Git/security-and-privacy-3/SoftwareSecurity_LabSession/3DES/ecb/encrypt.txt /Users/brandonfontany--legall/Desktop/Git/security-and-privacy-3/SoftwareSecurity_LabSession/3DES/ecb/decrypt.txt
+
