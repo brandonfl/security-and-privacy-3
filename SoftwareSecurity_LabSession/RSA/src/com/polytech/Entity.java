@@ -17,16 +17,13 @@ public class Entity{
 	  * Public / Private Key generation
 	 **/
 	public Entity(){
-		// INITIALIZATION
-
-		// generate a public/private key
 		try{
-			// get an instance of KeyPairGenerator  for RSA	
-			// Initialize the key pair generator for 1024 length
-			// Generate the key pair
-			
-			// save the public/private key
-			
+			KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+			keyPairGenerator.initialize(1024);
+			KeyPair keyPair = keyPairGenerator.genKeyPair();
+
+			this.thePublicKey = keyPair.getPublic();
+			this.thePrivateKey = keyPair.getPrivate();
 		}catch(Exception e){
 			System.out.println("Signature error");
 			e.printStackTrace();
@@ -42,12 +39,11 @@ public class Entity{
 	public byte[] sign(byte[] aMessage){
 		
 		try{
-			// use of java.security.Signature
-			// Init the signature with the private key
+			Signature signature = Signature.getInstance("SHA1withRSA");
+			signature.initSign(this.thePrivateKey);
+			signature.update(aMessage);
 
-			// update the message
-			// sign
-			return null;
+			return signature.sign();
 		}catch(Exception e){
 			System.out.println("Signature error");
 			e.printStackTrace();
@@ -66,12 +62,11 @@ public class Entity{
 	  **/
 	public boolean checkSignature(byte[] aMessage, byte[] aSignature, PublicKey aPK){
 		try{
-			// use of java.security.Signature
-			// init the signature verification with the public key
+			Signature signature = Signature.getInstance("SHA1withRSA");
+			signature.initVerify(aPK);
+			signature.update(aMessage);
 
-			// update the message
-			// check the signature
-			return false;
+			return signature.verify(aSignature);
 		}catch(Exception e){
 			System.out.println("Verify signature error");
 			e.printStackTrace();
@@ -89,15 +84,14 @@ public class Entity{
 	public byte[] mySign(byte[] aMessage){
 		
 		try{
-			// get an instance of a cipher with RSA with ENCRYPT_MODE
-			// Init the signature with the Public key
+			Cipher cipher = Cipher.getInstance("RSA");
+			cipher.init(Cipher.ENCRYPT_MODE, this.thePrivateKey);
 
-			// get an instance of the java.security.MessageDigest with SHA1
-			// process the digest
-			
-			// return the encrypted digest
-			return null;
-			
+			MessageDigest messageDigest = MessageDigest.getInstance("SHA1");
+			messageDigest.update(aMessage);
+			byte[] digest = messageDigest.digest(aMessage);
+
+			return cipher.doFinal(digest);
 		}catch(Exception e){
 			System.out.println("Signature error");
 			e.printStackTrace();
@@ -116,16 +110,14 @@ public class Entity{
 	  **/
 	public boolean myCheckSignature(byte[] aMessage, byte[] aSignature, PublicKey aPK){
 		try{
-			// get an instance of a cipher with RSA with ENCRYPT_MODE
-			// Init the signature with the private key
-			// decrypt the signature
-			
-			// get an instance of the java.security.MessageDigest with SHA1
-			// process the digest
-			
-			// check if digest1 == digest2
-			return false;
+			Cipher cipher = Cipher.getInstance("RSA");
+			cipher.init(Cipher.DECRYPT_MODE, aPK);
 
+			byte[] digest1 = cipher.doFinal(aSignature);
+			MessageDigest messageDigest = MessageDigest.getInstance("SHA1");
+			messageDigest.update(aMessage);
+
+			return digest1.equals(messageDigest.digest());
 		}catch(Exception e){
 			System.out.println("Verify signature error");
 			e.printStackTrace();
@@ -143,11 +135,10 @@ public class Entity{
 	  **/
 	public byte[] encrypt(byte[] aMessage, PublicKey aPK){
 		try{
-			// get an instance of RSA Cipher
-			// init the Cipher in ENCRYPT_MODE and aPK
-			// use doFinal on the byte[] and return the ciphered byte[]
-			return null;
-			
+			Cipher cipher = Cipher.getInstance("RSA");
+			cipher.init(Cipher.ENCRYPT_MODE, aPK);
+
+			return cipher.doFinal(aMessage);
 		}catch(Exception e){
 			System.out.println("Encryption error");
 			e.printStackTrace();
@@ -163,11 +154,10 @@ public class Entity{
 	  **/
 	public byte[] decrypt(byte[] aMessage){
 		try{
-			// get an instance of RSA Cipher
-			// init the Cipher in DECRYPT_MODE and aPK
-			// use doFinal on the byte[] and return the deciphered byte[]
-			return null;
-			
+			Cipher cipher = Cipher.getInstance("RSA");
+			cipher.init(Cipher.DECRYPT_MODE, this.thePrivateKey);
+
+			return cipher.doFinal(aMessage);
 		}catch(Exception e){
 			System.out.println("Encryption error");
 			e.printStackTrace();

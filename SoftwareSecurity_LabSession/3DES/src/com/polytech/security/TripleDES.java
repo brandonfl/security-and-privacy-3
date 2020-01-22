@@ -166,36 +166,48 @@ public class TripleDES{
 							String CipherInstanceName){
 		try{
 			
-		
-			// GENERATE 3 DES KEYS
-			// GENERATE THE IV
-		
-			// CREATE A DES CIPHER OBJECT 
-				// WITH CipherInstanceName
-				// FOR ENCRYPTION 
-				// WITH THE FIRST GENERATED DES KEY
+			byte[] iv = new byte[128/8];
+			new SecureRandom().nextBytes(iv);
+			IvParameterSpec ivspec = new IvParameterSpec(iv);
 			
-			// CREATE A DES CIPHER OBJECT 
-				// WITH CipherInstanceName
-				// FOR DECRYPTION
-				// WITH THE SECOND GENERATED DES KEY
-				
-			// CREATE A DES CIPHER OBJECT 
-				// WITH CipherInstanceName 
-				// FOR ENCRYPTION
-				// WITH THE THIRD GENERATED DES KEY
-				
-			// GET THE DATA TO BE ENCRYPTED FROM IN 
+			KeyGenerator keyGen = KeyGenerator.getInstance(KeyGeneratorInstanceName);
+			keyGen.init(new SecureRandom());
+			SecretKey secretLevel1 = keyGen.generateKey();
+			SecretKey secretLevel2 = keyGen.generateKey();
+			SecretKey secretLevel3 = keyGen.generateKey();
 			
-			// CIPHERING     
-				// CIPHER WITH THE FIRST KEY
-				// DECIPHER WITH THE SECOND KEY
-				// CIPHER WITH THE THIRD KEY
-
-			// WRITE THE ENCRYPTED DATA IN OUT
+			IvParameterSpec IVLevel1 = new IvParameterSpec(new byte[8]);
+			IvParameterSpec IVLevel2 = new IvParameterSpec(new byte[8]);
+			IvParameterSpec IVLevel3 = new IvParameterSpec(new byte[8]);
 			
-			// return the DES keys list generated		
-			return null;
+			Cipher cipherLevel1 = Cipher.getInstance(CipherInstanceName);
+			cipherLevel1.init(Cipher.ENCRYPT_MODE, secretLevel1, IVLevel1);
+			
+			Cipher cipherLevel2 = Cipher.getInstance(CipherInstanceName);
+			cipherLevel2.init(Cipher.DECRYPT_MODE, secretLevel2, IVLevel2);
+			
+			Cipher cipherLevel3 = Cipher.getInstance(CipherInstanceName);
+			cipherLevel3.init(Cipher.ENCRYPT_MODE, secretLevel3, IVLevel3);
+			
+			StringBuilder stringBuilder = new StringBuilder();
+			
+			byte[] plainText  = in.readAllBytes();
+			byte[] firstPass = cipherLevel1.doFinal(plainText);
+			byte[] secondPass = cipherLevel2.doFinal(firstPass);
+			byte[] thirdPass = cipherLevel3.doFinal(secondPass);
+			
+			out.write(thirdPass);
+			out.close();
+			
+			Vector vector = new Vector();
+			vector.add(secretLevel1);
+			vector.add(IVLevel1);
+			vector.add(secretLevel2);
+			vector.add(IVLevel2);
+			vector.add(secretLevel3);
+			vector.add(IVLevel3);
+			
+			return vector;
 			
 		}catch(Exception e){
 			e.printStackTrace();
@@ -212,29 +224,29 @@ public class TripleDES{
 						String CipherInstanceName){
 		try{
 		
-			// CREATE A DES CIPHER OBJECT 
-				// WITH CipherInstanceName
-				// FOR DECRYPTION  
-				// WITH THE THIRD GENERATED DES KEY
+			SecretKey secretLevel1 = (SecretKey) Parameters.get(0);
+			IvParameterSpec IVLevel1 = (IvParameterSpec) Parameters.get(1);
+			SecretKey secretLevel2 = (SecretKey) Parameters.get(2);
+			IvParameterSpec IVLevel2 = (IvParameterSpec) Parameters.get(3);
+			SecretKey secretLevel3 = (SecretKey) Parameters.get(4);
+			IvParameterSpec IVLevel3 = (IvParameterSpec) Parameters.get(5);
 			
-			// CREATE A DES CIPHER OBJECT 
-				// WITH CipherInstanceName
-				// FOR ENCRYPTION 
-				// WITH THE SECOND GENERATED DES KEY
-				
-			// CREATE A DES CIPHER OBJECT FOR ENCRYPTION
-				// WITH CipherInstanceName
-				// FOR DECRYPTION 
-				// WITH THE FIRST GENERATED DES KEY
+			Cipher cipherLevel1 = Cipher.getInstance(CipherInstanceName);
+			cipherLevel1.init(Cipher.DECRYPT_MODE, secretLevel3, IVLevel3);
 			
-			// GET ENCRYPTED DATA FROM IN
+			Cipher cipherLevel2 = Cipher.getInstance(CipherInstanceName);
+			cipherLevel2.init(Cipher.ENCRYPT_MODE, secretLevel2, IVLevel2);
 			
-			// DECIPHERING     
-				// DECIPHER WITH THE THIRD KEY
-				// 	CIPHER WITH THE SECOND KEY
-				// 	DECIPHER WITH THE FIRST KEY
-
-			// WRITE THE DECRYPTED DATA IN OUT
+			Cipher cipherLevel3 = Cipher.getInstance(CipherInstanceName);
+			cipherLevel3.init(Cipher.DECRYPT_MODE, secretLevel1, IVLevel1);
+			
+			byte[] plainText  = in.readAllBytes();
+			byte[] firstPass = cipherLevel1.doFinal(plainText);
+			byte[] secondPass = cipherLevel2.doFinal(firstPass);
+			byte[] thirdPass = cipherLevel3.doFinal(secondPass);
+			
+			out.write(thirdPass);
+			out.close();
 			
 		}catch(Exception e){
 			e.printStackTrace();

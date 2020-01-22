@@ -8,10 +8,12 @@ package com.polytech;
 
 import java.security.*;
 import java.io.*;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 
 public class Asymetric{
 
-	static public void main(String argv[]){
+	static public void main(String argv[]) {
 
 		// INITIALIZATION
 		
@@ -91,13 +93,27 @@ public class Asymetric{
 
 		static void KeyExchangeProtocol(){
 			Entity Alice, Bob;
-			 
+			try {
 			//	Alice sends her public key to Bob.
 			//	Bob generate a DES session key.
+
+			KeyGenerator keyGenerator = KeyGenerator.getInstance("DES");
+			SecretKey secretKey = keyGenerator.generateKey();
+
 			//	Bob encrypts it with Alice’s public key.
+				byte[] bobEncrypt = Bob.encrypt(secretKey.getEncoded(), Alice.thePublicKey);
+
 			//	Alice decrypts the DES key with her private key.
+				byte[] aliceDecrypt = Alice.decrypt(bobEncrypt);
+
 			//  Alice sends a message to Bob with her session key
 			//	Bob decrypts the message with the session key.
+				Bob.decrypt(aliceDecrypt);
+
+			} catch (NoSuchAlgorithmException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
 
 		}
 		
